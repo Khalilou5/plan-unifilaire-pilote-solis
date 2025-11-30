@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { ZoomIn, ZoomOut, Home, Info, Power, Battery, Zap, Settings, Grid3x3, AlertTriangle, FastForward, Repeat2, Activity, TrendingUp } from 'lucide-react';
+import { ZoomIn, ZoomOut, Home, Info, Power, Battery, Zap, Settings, Grid3x3, AlertTriangle, FastForward, Repeat2, Activity, TrendingUp, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
 
@@ -266,6 +266,7 @@ const AnimatedLine: React.FC<AnimatedLineProps> = ({
     } else if (voltageLevel === 'MV') {
       gradientId = 'flowGradientMV';
       // MV est actif uniquement pour l'exportation vers le PCC
+      // Correction: Actif si PV_INJ ou BESS_DIS
       isActive = (flowScenario === 'PV_INJ' || flowScenario === 'BESS_DIS');
     } else if (voltageLevel === 'AC') {
       if (flowRole === 'bessPath') { // Ligne bidirectionnelle BESS
@@ -277,14 +278,15 @@ const AnimatedLine: React.FC<AnimatedLineProps> = ({
           isActive = true;
         } else { // PV_INJ
           isActive = false;
-          // Pas de flux BESS
         }
       } else if (flowRole === 'pvSource') { // Ligne Onduleur -> TGBT
         gradientId = 'flowGradientAC_Fwd';
-        isActive = (flowScenario === 'PV_INJ' || flowScenario === 'BESS_DIS' || flowScenario === 'BESS_CHG');
+        // Toujours actif si PV produit (PV_INJ ou BESS_CHG), ou si le BESS décharge (même si PV=0)
+        isActive = (flowScenario === 'PV_INJ' || flowScenario === 'BESS_CHG' || flowScenario === 'BESS_DIS');
       } else if (flowRole === 'gridPath') { // Ligne TGBT -> Transfo -> PCC
         gradientId = 'flowGradientAC_Fwd';
-        // Actif si PV injecte ou BESS décharge. Inactif si BESS_CHG (le PV charge le BESS, pas le réseau).
+        // Actif si PV injecte ou BESS décharge. Inactif si BESS_CHG (l'énergie va vers le BESS).
+        // Correction: On s'assure que cette ligne n'est active que si P_Grid > 0
         isActive = (flowScenario === 'PV_INJ' || flowScenario === 'BESS_DIS');
       } else if (flowRole === 'auxLoad') {
         gradientId = 'flowGradientAC_Fwd';
@@ -300,7 +302,6 @@ const AnimatedLine: React.FC<AnimatedLineProps> = ({
 
   // Helper pour extraire les coordonnées d'une chaîne de ligne simple ("x1 y1 x2 y2")
   const getLineCoords = () => {
-    // Nettoyage de la chaîne et conversion en nombres
     const parts = path.split(/\s+/).map(str => parseFloat(str)).filter(n => !isNaN(n));
     if (LineComponent === 'line' && parts.length >= 4) {
       // Assumer le format 'x1 y1 x2 y2'
@@ -348,7 +349,6 @@ const AnimatedLine: React.FC<AnimatedLineProps> = ({
       }
   }
 
-
   if (isPath) {
     animProps.d = path;
   } else {
@@ -380,6 +380,8 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
   const [flowAnimation, setFlowAnimation] = useState<boolean>(true);
   const [flowScenario, setFlowScenario] = useState<FlowScenarioType>('PV_INJ');
   const [activeLevel, setActiveLevel] = useState<LevelType>('all');
+  // MODIFICATION 1 : AJOUT DE L'ÉTAT isSidebarOpen
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false); 
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -397,6 +399,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
       bessPower = 4.2; // Discharge from BESS
       gridPower = bessPower - auxLoad + pvPower; // BESS + PV fournissent au réseau et aux auxiliaires
     } else if (flowScenario === 'BESS_CHG') {
+      pvPower = 5.8; // PV max
       bessPower = -3.5; // Charge BESS
       gridPower = pvPower + bessPower - auxLoad; // pvPower + (charge_bess_negative) - auxLoad
       if (gridPower < 0) gridPower = 0; // On ne veut pas importer du réseau ici
@@ -441,7 +444,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
     setIsDragging(false);
   };
   
-  // GESTIONNAIRES TACTILES (Conservés pour la responsivité)
+  // GESTIONNAIRES TACTILES 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>): void => {
       if (e.touches.length === 1) { 
           setIsDragging(true);
@@ -455,7 +458,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               x: e.touches[0].clientX - dragStart.x,
               y: e.touches[0].clientY - dragStart.y
           });
-          e.preventDefault(); // Empêche le défilement de la page pendant le panoramique
+          e.preventDefault(); 
       }
   };
 
@@ -500,7 +503,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
     return (
       <div className="bg-gray-700 rounded-lg p-4 border border-cyan-500/30 shadow-lg mb-4"> 
         <h4 className="font-semibold mb-3 text-cyan-400 flex items-center gap-2">
-          {/* CORRECTION ERREUR RUNTIME: Simplification de la structure du h4 pour éviter les conflits d'insertion DOM. */}
+          {/* CORRECTION ERREUR RUNTIME: L'icône est un composant React et se rend correctement ici */}
           <IconComponent size={20} />
           {comp.name}
         </h4>
@@ -544,7 +547,6 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
     const comp = components[id];
     const isSelected = selectedComponent === id;
     const isHovered = hoveredComponent === id;
-    // Style de halo au hover et à la sélection
     const filterStyle = isHovered || isSelected ? "url(#glow)" : undefined;
     const strokeWidth = isSelected ? 4 : (isHovered ? 3 : 2);
     const strokeColor = isSelected ? comp.color : (isHovered ? comp.color : '#4b5563');
@@ -568,7 +570,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
           filter="url(#componentShadow)"
         />
         <text x={x + w / 2} y={titleY} textAnchor="middle" fill={comp.color} fontSize="16" fontWeight="bold">{comp.name}</text>
-        {/* CORRECTION LISIBILITÉ: On utilise detailY uniquement si nécessaire et on s'assure qu'il ne chevauche pas */}
+        {/* Correction Lisibilité: Utilisation de detailY ajusté par la fonction pour éviter le chevauchement */}
         <text x={x + w / 2} y={detailY} textAnchor="middle" fill="#9ca3af" fontSize="11">{comp.specs[Object.keys(comp.specs)[0]]}</text>
 
         {/* Afficher l'icône du composant pour plus de visibilité */}
@@ -590,18 +592,33 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
       {/* Header */}
       <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-cyan-400">Centrale Agrivoltaïque SOLIS™</h1>
-            <p className="text-sm text-gray-400 mt-1">Pilote 6 MWc PV + 10 MWh BESS | Schéma Unifilaire | SEDHIOU, Sénégal</p>
+          
+          <div className="flex items-center gap-4">
+              {/* Le bouton d'ouverture de la barre latérale est déplacé ici pour être plus visible */}
+              {/* Il sera masqué par la MODIFICATION 2, mais une alternative est plus propre au niveau du SVG */}
+              <div className="hidden">
+                <button 
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden p-2 rounded-full bg-cyan-700 hover:bg-cyan-600 transition-colors"
+                >
+                  <Info size={20} className="text-white" />
+                </button>
+              </div>
+              
+              <div>
+                <h1 className="text-2xl font-bold text-cyan-400">Centrale Agrivoltaïque SOLIS™</h1>
+                <p className="text-sm text-gray-400 mt-1">Pilote 6 MWc PV + 10 MWh BESS | Schéma Unifilaire | SEDHIOU, Sénégal</p>
+              </div>
           </div>
+          
           <div className="flex gap-6 items-center">
-            <div className="text-right">
+            <div className="text-right hidden md:block">
               <div className="text-xs text-gray-400">Scénario de Flux</div>
               <div className="text-lg font-bold text-green-400">
                 {flowScenario === 'PV_INJ' ? 'PV Injection (Max)' : flowScenario === 'BESS_DIS' ? 'BESS Décharge' : 'BESS Charge (PV)'}
               </div>
             </div>
-            <div className="text-right bg-gray-700 px-4 py-2 rounded border border-cyan-500/30">
+            <div className="text-right bg-gray-700 px-4 py-2 rounded border border-cyan-500/30 hidden md:block">
               <div className="text-xs text-gray-400">Tension PCC</div>
               <div className="text-lg font-bold text-cyan-400">{telemetry.voltage} kV</div>
             </div>
@@ -610,12 +627,35 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Panneau latéral (w-80 conservé pour l'affichage desktop) */}
-        <div className="w-80 bg-gray-800 border-r border-gray-700 flex flex-col overflow-hidden">
+        {/* MODIFICATION 4 : OVERLAY MOBILE */}
+        {isSidebarOpen && (
+          <div 
+            className="md:hidden fixed inset-0 bg-black/50 z-20"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+        
+        {/* MODIFICATION 3 : BARRE LATÉRALE CONDITIONNELLE ET RÉTRACTABLE */}
+        <div className={`
+          ${isSidebarOpen ? 'flex' : 'hidden'} 
+          md:flex 
+          md:w-80 w-80 
+          bg-gray-800 border-r border-gray-700 flex-col overflow-hidden 
+          absolute md:relative z-30 h-full transition-transform
+        `}>
           {/* Contenu du panneau latéral avec scrollbar */}
           <div className="p-4 flex-1 overflow-y-auto">
+              
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Info size={20} className="text-cyan-400" /> Navigation & Télémétrie
+              <Info size={20} className="text-cyan-400" /> 
+              Navigation & Télémétrie
+              {/* MODIFICATION 5 : BOUTON DE FERMETURE DANS LA BARRE LATÉRALE (MOBILE) */}
+              <button 
+                onClick={() => setIsSidebarOpen(false)}
+                className="md:hidden ml-auto text-gray-400 hover:text-white p-1 rounded-full bg-gray-700 hover:bg-gray-600"
+              >
+                <X size={20} />
+              </button>
             </h3>
 
             {/* Télémétrie SCADA */}
@@ -735,17 +775,37 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
 
         {/* Conteneur SVG interactif */}
         <div
-          className="flex-1 overflow-hidden"
+          className="flex-1 overflow-hidden relative"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          // GESTIONNAIRES TACTILES POUR LE PANORAMIQUE SUR MOBILE (RESPONSIVITÉ)
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           style={{ cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'none' }} 
         >
+          {/* Contrôles de Zoom et Réinitialisation (Positionnement en haut à droite) */}
+          <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+            <button onClick={() => setZoom(z => Math.min(z * 1.2, 3))} className="bg-gray-800 hover:bg-gray-700 p-2 rounded border border-gray-600 transition-colors">
+              <ZoomIn size={20} />
+            </button>
+            <button onClick={() => setZoom(z => Math.max(z * 0.8, 0.3))} className="bg-gray-800 hover:bg-gray-700 p-2 rounded border border-gray-600 transition-colors">
+              <ZoomOut size={20} />
+            </button>
+            <button onClick={resetView} className="bg-gray-800 hover:bg-gray-700 p-2 rounded border border-gray-600 transition-colors">
+              <Home size={20} />
+            </button>
+          </div>
+
+          {/* MODIFICATION 2 : BOUTON MENU (visible uniquement sur mobile) */}
+          <button 
+            onClick={() => setIsSidebarOpen(true)} // Ouvre la barre latérale
+            className="md:hidden absolute top-4 left-4 bg-gray-800 hover:bg-gray-700 p-2 rounded border border-gray-600 transition-colors z-10"
+          >
+            <Settings size={20} />
+          </button>
+
           <svg
             ref={svgRef}
             className="w-full h-full"
@@ -863,13 +923,12 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     strokeWidth={4}
                   />
                   
-                  {/* Disjoncteur BESS (Breaker/XCBR) : Positionnement ajusté */}
+                  {/* Disjoncteur BESS (Q2) : Correction de la position du texte Q2 */}
                   <g transform="translate(670, 370)">
                     <rect x="-10" y="-15" width="20" height="30" fill="#10b981" stroke="#10b981" strokeWidth="2" />
                     <line x1="0" y1="-15" x2="0" y2="15" stroke="#000" strokeWidth="1"/>
                   </g>
-                  {/* CORRECTION LISIBILITÉ: Remonter Q2 */}
-                  <text x="670" y="340" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">Q2</text>
+                  <text x="670" y="335" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">Q2</text>
                 </g>
               )}
 
@@ -878,11 +937,10 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                 <g id="niveau-tgbt">
                   {/* TGBT Block avec Bus Bar */}
                   {renderComponentBlock('tgbt', 750, 180, 180, 280, 210, 235, 320)}
-                  {/* CORRECTION LISIBILITÉ: Texte déplacé pour éviter le chevauchement */}
-                  <text x="837" y="445" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Icw: 30 kA | XCBR</text>
+                  {/* Correction Lisibilité: Texte déplacé pour ne pas chevaucher l'icône */}
+                  <text x="837" y="455" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Icw: 30 kA | XCBR</text>
 
-                  {/* 1. Onduleurs -> TGBT Bus (Ligne déjà dessinée au dessus) */}
-                  {/* 2. BESS -> TGBT Bus (AC Bidirectional) - Corrigé et non redondant */}
+                  {/* Ligne BESS -> TGBT Bus (AC Bidirectional) - Corrigé et non redondant */}
                   <AnimatedLine path="M 670 370 L 750 370 L 750 320" color="#10b981" voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="bessPath" strokeWidth={4} />
 
                   {/* Q1 Protection (Charge Auxiliaire) */}
@@ -911,11 +969,10 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               {(activeLevel === 'all' || activeLevel === 'ac-bt' || activeLevel === 'ac-mv') && (
                 <g id="niveau-transfo">
                   {renderComponentBlock('transfo', 970, 200, 200, 160, 230, 255)}
-                  {/* CORRECTION LISIBILITÉ: Texte remonté pour éviter le chevauchement avec l'icône */}
-                  <text x="1070" y="265" textAnchor="middle" fill="#9ca3af" fontSize="11">7.5 MVA | Δ/Yy0 | YPTR</text>
+                  {/* Correction Lisibilité: Texte déplacé pour ne pas chevaucher l'icône */}
+                  <text x="1070" y="275" textAnchor="middle" fill="#9ca3af" fontSize="11">7.5 MVA | Δ/Yy0 | YPTR</text>
 
-                  {/* **Ligne TGBT (Bus) -> Transfo (AC BT)** */}
-                  {/* CORRECTION ANIMATION: Ajout du marqueur de fin pour visualiser le flux */}
+                  {/* Ligne TGBT (Bus) -> Transfo (AC BT) - Correction: Animation fonctionnelle */}
                   <AnimatedLine 
                     path="M 930 320 L 970 320" 
                     color={components.onduleurs.color} 
@@ -927,8 +984,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     markerEndId="arrowAC_Fwd" 
                   />
                   
-                  {/* Ligne Transfo -> Poste MV (MV) */}
-                  {/* CORRECTION ANIMATION: Ajout du marqueur de fin pour visualiser le flux */}
+                  {/* Ligne Transfo -> Poste MV (MV) - Correction: Animation fonctionnelle */}
                   <AnimatedLine 
                     path="M 1070 360 L 1070 450 L 1240 450" 
                     color={components.posteMV.color} 
@@ -946,21 +1002,17 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               {(activeLevel === 'all' || activeLevel === 'ac-mv') && (
                 <g id="niveau-poste-mv">
                   {renderComponentBlock('posteMV', 1240, 200, 250, 160, 230, 255)}
-                  {/* CORRECTION LISIBILITÉ: Texte remonté pour éviter le chevauchement avec l'icône */}
-                  <text x="1365" y="265" textAnchor="middle" fill="#9ca3af" fontSize="11">33 kV | PDIF/PTUV</text>
-
-                  {/* Ligne Transfo -> Poste MV (MV) - déjà dessinée dans la section transfo pour l'ordre de superposition */}
+                  {/* Correction Lisibilité: Texte déplacé pour ne pas chevaucher l'icône */}
+                  <text x="1365" y="275" textAnchor="middle" fill="#9ca3af" fontSize="11">33 kV | PDIF/PTUV</text>
                   
-                  {/* Disjoncteur (Breaker/PTRC) : Positionnement ajusté */}
+                  {/* Disjoncteur (Q4) : Correction de la position du texte Q4 */}
                   <g transform="translate(1330, 280)">
                     <rect x="-15" y="-10" width="30" height="20" fill="#f59e0b" stroke="#f59e0b" strokeWidth="2" />
                     <line x1="-15" y1="0" x2="15" y2="0" stroke="#000" strokeWidth="1"/>
                   </g>
-                  {/* CORRECTION LISIBILITÉ: Remonter Q4 */}
-                  <text x="1330" y="260" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q4</text>
+                  <text x="1330" y="255" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q4</text>
                   
                   {/* Ligne MV du poste au PCC (Point de Connexion) */}
-                  {/* CORRECTION ANIMATION: Ajout du marqueur de fin pour visualiser le flux */}
                   <AnimatedLine 
                     path="M 1490 280 L 1550 280" 
                     color="#f59e0b" 
@@ -969,7 +1021,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     flowAnimation={flowAnimation}
                     flowRole="gridPath"
                     strokeWidth={5}
-                    markerEndId="arrowMV" // Ajouté
+                    markerEndId="arrowMV" 
                   />
                 </g>
               )}
