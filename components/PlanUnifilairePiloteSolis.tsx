@@ -348,10 +348,13 @@ if (isPath) {
       if (flowRole === 'bessPath') {
           // Utilise le marqueur inverse pour la charge
           animProps.markerEnd = `url(#${flowScenario === 'BESS_CHG' ? 'arrowAC_Rev' : 'arrowAC_Fwd'})`;
-} else {
-          // Utilise le marqueur par défaut (MV ou DC)
-          animProps.markerEnd = `url(#${markerEndId})`;
-}
+} else if (voltageLevel === 'DC') {
+          animProps.markerEnd = `url(#arrowDC)`;
+      } else if (voltageLevel === 'MV') {
+          animProps.markerEnd = `url(#arrowMV)`;
+      } else if (voltageLevel === 'AC') {
+          animProps.markerEnd = `url(#arrowAC_Fwd)`;
+      }
   }
 
 
@@ -386,7 +389,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
   const [flowAnimation, setFlowAnimation] = useState<boolean>(true);
   const [flowScenario, setFlowScenario] = useState<FlowScenarioType>('PV_INJ');
   const [activeLevel, setActiveLevel] = useState<LevelType>('all');
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false); // ⬅️ MODIFICATION 1
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -602,6 +605,18 @@ const handleSelectComponent = (id: ComponentId): void => {
         >
           {comp.specs[Object.keys(comp.specs)[0]]}
         </text>
+        
+        {/* Représentation IEC 61850 */}
+         <text 
+          x={textX} 
+          y={detailY + 15} // Décalage pour afficher l'IEC 61850 sous la spec clé
+          textAnchor="middle" 
+          fill="#indigo-300" 
+          fontSize="8" 
+          fontWeight="light"
+        >
+          {comp.iec61850}
+        </text>
 
         {/* Représentation du Bus Bar pour TGBT */}
         {id === 'tgbt' && lineY && (
@@ -638,7 +653,7 @@ const handleSelectComponent = (id: ComponentId): void => {
       </div>
       
       <div className="flex-1 flex overflow-hidden">
-        {/* ⬇️ MODIFICATION 4: AJOUTER CET OVERLAY (visible uniquement quand sidebar ouverte sur mobile) ⬇️ */}
+        {/* Overlay pour mobile */}
         {isSidebarOpen && (
           <div 
             className="md:hidden fixed inset-0 bg-black/50 z-20"
@@ -646,15 +661,13 @@ const handleSelectComponent = (id: ComponentId): void => {
           />
         )}
 
-        {/* Panneau latéral - OK: flex flex-col et overflow-hidden */}
-        {/* MODIFICATION 3: Remplacer la classe pour le contrôle conditionnel et le positionnement mobile */}
+        {/* Panneau latéral */}
         <div className={`${isSidebarOpen ? 'flex' : 'hidden'} md:flex md:w-80 w-80 bg-gray-800 border-r border-gray-700 flex-col overflow-hidden absolute md:relative z-30 h-full transition-transform`}>
-          {/* Contenu du panneau latéral avec scrollbar - OK: flex-1 et overflow-y-auto */}
+          {/* Contenu du panneau latéral avec scrollbar */}
           <div className="p-4 flex-1 overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Info size={20} className="text-cyan-400" />
               Navigation & Télémétrie
-              {/* ⬇️ MODIFICATION 5: AJOUTER CE BOUTON DE FERMETURE (visible uniquement sur mobile) ⬇️ */}
               <button 
                 onClick={() => setIsSidebarOpen(false)}
                 className="md:hidden ml-auto text-gray-400 hover:text-white"
@@ -798,7 +811,7 @@ const handleSelectComponent = (id: ComponentId): void => {
             </button>
           </div>
 
-          {/* ⬇️ MODIFICATION 2: AJOUTER CE BOUTON MENU (visible uniquement sur mobile) ⬇️ */}
+          {/* Bouton Menu (visible uniquement sur mobile) */}
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="md:hidden absolute top-4 left-4 bg-gray-800 hover:bg-gray-700 p-2 rounded border border-gray-600 transition-colors z-20"
@@ -860,8 +873,8 @@ const handleSelectComponent = (id: ComponentId): void => {
                 {/* Bloc Combiner Box */}
                 {renderComponentBlock('combiner', 220, 150, 160, 80, 180, 205)}
 
-                {/* Ligne DC PV -> Combiner */}
-                <AnimatedLine path="M 300 120 L 300 150" color={components.pv.color} voltageLevel="DC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="dcPath" />
+                {/* Ligne DC PV -> Combiner (Ajout du marqueur de fin) */}
+                <AnimatedLine path="M 300 120 L 300 150" color={components.pv.color} voltageLevel="DC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="dcPath" markerEndId="arrowDC" />
                 
                 {/* Ligne DC Combiner -> Onduleurs */}
                 <AnimatedLine path="M 300 230 L 300 370 L 400 370" color={components.pv.color} voltageLevel="DC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="pvSource" strokeWidth={5} markerEndId="arrowDC" />
@@ -877,21 +890,21 @@ const handleSelectComponent = (id: ComponentId): void => {
                 {/* BESS Block */}
                 {renderComponentBlock('bess', 400, 550, 200, 140, 580, 635)}
                 
-                {/* Ligne AC Onduleurs -> TGBT Bus */}
-                <AnimatedLine path="M 600 370 L 750 370" color={components.onduleurs.color} voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="pvSource" />
+                {/* Ligne AC Onduleurs -> TGBT Bus (Ajout du marqueur de fin) */}
+                <AnimatedLine path="M 600 370 L 750 370" color={components.onduleurs.color} voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="pvSource" markerEndId="arrowAC_Fwd" />
 
                 {/* Ligne AC BESS (Bidirectionnelle) */}
                 <AnimatedLine path="M 600 620 L 750 620 L 750 430 L 670 430" color={components.bess.color} voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="bessPath" />
                 
-                {/* TGBT Block avec Bus Bar */}
-                {renderComponentBlock('tgbt', 750, 180, 180, 280, 210, 235, 320)}
+                {/* TGBT Block avec Bus Bar (Coordonnées ajustées pour la lisibilité) */}
+                {renderComponentBlock('tgbt', 750, 180, 180, 280, 240, 270, 320)} {/* TitleY: 240, DetailY: 270 (Ajusté) */}
 
                 {/* Protection Q1 (Charge Auxiliaire) */}
                 <g transform="translate(830, 340)">
                   <rect x="-5" y="0" width="10" height="12" fill="#ef4444" stroke="#ef4444" strokeWidth="1" />
                   <path d="M 5 0 L 8 6 L 5 12 Z" fill="#ef4444" />
                 </g>
-                <text x="830" y="365" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Q1</text>
+                <text x="830" y="335" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Q1</text> {/* Légèrement déplacé */}
                 <AnimatedLine path="M 830 320 L 830 340" color="#6366f1" voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="auxLoad" strokeWidth={2} />
                 <AnimatedLine path="M 830 352 L 830 430" color="#6366f1" voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="auxLoad" strokeWidth={2} markerEndId="arrowAC_Fwd" />
                 <text x="834" y="415" textAnchor="middle" fill="#6366f1" fontSize="10" fontWeight="bold">AUX LOAD</text>
@@ -901,38 +914,38 @@ const handleSelectComponent = (id: ComponentId): void => {
                   <rect x="-5" y="-10" width="10" height="20" fill="#f59e0b" stroke="#f59e0b" strokeWidth="2" />
                   <line x1="-5" y1="0" x2="5" y2="0" stroke="#000" strokeWidth="1"/>
                 </g>
-                <text x="837" y="265" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q2</text>
+                <text x="837" y="260" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q2</text> {/* Ajusté à Y=260 */}
 
-                {/* Ligne TGBT Bus -> Q2 -> Transfo */}
-                <AnimatedLine path="M 837 320 L 837 300" color="#6366f1" voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" />
-                <AnimatedLine path="M 837 260 L 837 200 L 980 200" color="#6366f1" voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" strokeWidth={5} />
+                {/* Ligne TGBT Bus -> Q2 -> Transfo (Animation corrigée) */}
+                <AnimatedLine path="M 837 320 L 837 300" color="#6366f1" voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" strokeWidth={5} /> {/* strokeWidth explicite */}
+                <AnimatedLine path="M 837 260 L 837 200 L 980 200" color="#6366f1" voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" strokeWidth={5} markerEndId="arrowAC_Fwd" />
               </g>
             )}
 
             {/* NIVEAU 3: Transformateur et Poste MV (AC-MV 33kV) */}
             {(activeLevel === 'all' || activeLevel === 'ac-mv') && (
               <g id="niveau-mv-33kv">
-                {/* Transformateur Block */}
-                {renderComponentBlock('transfo', 980, 130, 180, 180, 160, 220)}
+                {/* Transformateur Block (Coordonnées ajustées pour la lisibilité) */}
+                {renderComponentBlock('transfo', 980, 130, 180, 180, 180, 205)} {/* TitleY: 180, DetailY: 205 (Ajusté) */}
 
                 {/* Ligne Basse Tension (Secondaire Transfo) */}
-                <AnimatedLine path="M 980 200 L 1160 200" color={components.transfo.color} voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" />
+                <AnimatedLine path="M 980 200 L 1160 200" color={components.transfo.color} voltageLevel="AC" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" strokeWidth={5} markerEndId="arrowAC_Fwd" /> {/* strokeWidth explicite + marqueur */}
 
-                {/* Poste MV 33kV Block */}
-                {renderComponentBlock('posteMV', 1330, 200, 160, 160, 230, 260)}
+                {/* Poste MV 33kV Block (Coordonnées ajustées pour la lisibilité) */}
+                {renderComponentBlock('posteMV', 1330, 200, 160, 160, 250, 275)} {/* TitleY: 250, DetailY: 275 (Ajusté) */}
 
-                {/* Ligne Haute Tension (Primaire Transfo -> Poste MV) */}
-                <AnimatedLine path="M 1160 220 L 1330 220" color={components.transfo.color} voltageLevel="MV" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" />
+                {/* Ligne Haute Tension (Primaire Transfo -> Poste MV) (Animation corrigée) */}
+                <AnimatedLine path="M 1160 220 L 1330 220" color={components.transfo.color} voltageLevel="MV" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" strokeWidth={5} markerEndId="arrowMV" />
 
                 {/* Q4 Disjoncteur (Breaker/PTRC) */}
                 <g transform="translate(1330, 280)">
                   <rect x="-15" y="-10" width="30" height="20" fill="#f59e0b" stroke="#f59e0b" strokeWidth="2" />
                   <line x1="-15" y1="0" x2="15" y2="0" stroke="#000" strokeWidth="1"/>
                 </g>
-                <text x="1330" y="265" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q4</text>
+                <text x="1330" y="260" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q4</text> {/* Ajusté à Y=260 */}
 
                 {/* Ligne MV du poste au PCC (Point de Connexion) */}
-                <AnimatedLine path="M 1490 280 L 1550 280" color="#f59e0b" voltageLevel="MV" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" strokeWidth={5} />
+                <AnimatedLine path="M 1490 280 L 1550 280" color="#f59e0b" voltageLevel="MV" flowScenario={flowScenario} flowAnimation={flowAnimation} flowRole="gridPath" strokeWidth={5} markerEndId="arrowMV" />
 
                 {/* Début de la Ligne Réseau/PCC (Point de Connexion) */}
                 {renderComponentBlock('pcc', 1550, 250, 20, 60, 275, 295)}
