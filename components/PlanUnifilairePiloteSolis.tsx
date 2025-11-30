@@ -577,7 +577,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-cyan-400">Centrale Agrivoltaïque SOLIS™</h1>
-            <p className="text-sm text-gray-400 mt-1">6 MWc PV + 10 MWh BESS | Schéma Unifilaire V8 Lenders-Grade | SEDHIOU, Sénégal</p>
+            <p className="text-sm text-gray-400 mt-1">Pilote 6 MWc PV + 10 MWh BESS | Schéma Unifilaire | SEDHIOU, Sénégal</p>
           </div>
           <div className="flex gap-6 items-center">
             <div className="text-right">
@@ -1034,10 +1034,10 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               Schéma Unifilaire V8 - SOLIS™ Agrivoltaïque
             </text>
             <text x="50" y="988" fill="#6b7280" fontSize="10">
-              6 MWc PV + 10 MWh BESS | DAC SEFA / Salikégné, SEDHIOU | Document Technique Exécution
+              Pilote 6 MWc PV + 10 MWh BESS | DAC SEFA / Salikégné, SEDHIOU | Document Technique Exécution
             </text>
             <text x="1550" y="988" textAnchor="end" fill="#6b7280" fontSize="10">
-              Design: Bureau d'Études SOLIS | 2025
+              © SOLIS™ 2025. Tous droits réservés.
             </text>
 
           </svg>
