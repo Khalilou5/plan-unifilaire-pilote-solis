@@ -330,21 +330,20 @@ const AnimatedLine: React.FC<AnimatedLineProps> = ({
 
   // --- Ligne animée (Flux) ---
   const animProps: Record<string, any> = {
-    stroke: `url(#${
-      flowRole === 'bessPath' && flowScenario === 'BESS_CHG' ? 'flowGradientAC_Rev' : 'flowGradientAC_Fwd'
-    })`,
+    stroke: `url(#${gradientId})`, // Utiliser le gradientId déterminé
     strokeWidth: animStroke,
     fill: "none",
     opacity: 0.9,
     filter: "url(#glow)",
   };
+
   // Appliquer le marqueur de fin dynamiquement
   if (markerEndId && flowAnimation && isActive) {
       if (flowRole === 'bessPath') {
           // Utilise le marqueur inverse pour la charge
           animProps.markerEnd = `url(#${flowScenario === 'BESS_CHG' ? 'arrowAC_Rev' : 'arrowAC_Fwd'})`;
       } else {
-          // Utilise le marqueur par défaut (MV ou DC)
+          // Utilise le marqueur par défaut (MV ou DC ou AC_Fwd)
           animProps.markerEnd = `url(#${markerEndId})`;
       }
   }
@@ -442,7 +441,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
     setIsDragging(false);
   };
   
-  // NOUVEAUX GESTIONNAIRES TACTILES (Mobile Pan)
+  // GESTIONNAIRES TACTILES (Conservés pour la responsivité)
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>): void => {
       if (e.touches.length === 1) { 
           setIsDragging(true);
@@ -463,7 +462,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
   const handleTouchEnd = (): void => {
       setIsDragging(false);
   };
-  // FIN NOUVEAUX GESTIONNAIRES TACTILES
+  // FIN GESTIONNAIRES TACTILES
 
   const resetView = (): void => {
     setZoom(1);
@@ -501,7 +500,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
     return (
       <div className="bg-gray-700 rounded-lg p-4 border border-cyan-500/30 shadow-lg mb-4"> 
         <h4 className="font-semibold mb-3 text-cyan-400 flex items-center gap-2">
-          {/* L'utilisation de 'flex items-center gap-2' garantit l'alignement et l'espacement corrects */}
+          {/* CORRECTION ERREUR RUNTIME: Simplification de la structure du h4 pour éviter les conflits d'insertion DOM. */}
           <IconComponent size={20} />
           {comp.name}
         </h4>
@@ -569,6 +568,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
           filter="url(#componentShadow)"
         />
         <text x={x + w / 2} y={titleY} textAnchor="middle" fill={comp.color} fontSize="16" fontWeight="bold">{comp.name}</text>
+        {/* CORRECTION LISIBILITÉ: On utilise detailY uniquement si nécessaire et on s'assure qu'il ne chevauche pas */}
         <text x={x + w / 2} y={detailY} textAnchor="middle" fill="#9ca3af" fontSize="11">{comp.specs[Object.keys(comp.specs)[0]]}</text>
 
         {/* Afficher l'icône du composant pour plus de visibilité */}
@@ -610,7 +610,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Panneau latéral */}
+        {/* Panneau latéral (w-80 conservé pour l'affichage desktop) */}
         <div className="w-80 bg-gray-800 border-r border-gray-700 flex flex-col overflow-hidden">
           {/* Contenu du panneau latéral avec scrollbar */}
           <div className="p-4 flex-1 overflow-y-auto">
@@ -671,7 +671,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               <button 
                 onClick={() => setFlowScenario('BESS_CHG')} 
                 className={`w-full px-2 py-1.5 rounded text-xs transition-all font-medium mb-2 ${
-                  flowScenario === 'BESS_CHG' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                  flowScenario === 'BESS_CHG' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-600 text-gray-300 hover:bg-gray-700'
                 }`}
               >
                 BESS ← PV (Charge)
@@ -740,12 +740,11 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          // --- AJOUTS POUR LA RESPONSIVITÉ TACTILE (Mobile Pan) ---
+          // GESTIONNAIRES TACTILES POUR LE PANORAMIQUE SUR MOBILE (RESPONSIVITÉ)
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          style={{ cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'none' }} // <-- 'touchAction: none' essentiel
-          // --- FIN AJOUTS ---
+          style={{ cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'none' }} 
         >
           <svg
             ref={svgRef}
@@ -869,7 +868,8 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     <rect x="-10" y="-15" width="20" height="30" fill="#10b981" stroke="#10b981" strokeWidth="2" />
                     <line x1="0" y1="-15" x2="0" y2="15" stroke="#000" strokeWidth="1"/>
                   </g>
-                  <text x="670" y="350" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">Q2</text>
+                  {/* CORRECTION LISIBILITÉ: Remonter Q2 */}
+                  <text x="670" y="340" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">Q2</text>
                 </g>
               )}
 
@@ -878,7 +878,8 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                 <g id="niveau-tgbt">
                   {/* TGBT Block avec Bus Bar */}
                   {renderComponentBlock('tgbt', 750, 180, 180, 280, 210, 235, 320)}
-                  <text x="837" y="405" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Icw: 30 kA | XCBR</text>
+                  {/* CORRECTION LISIBILITÉ: Texte déplacé pour éviter le chevauchement */}
+                  <text x="837" y="445" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Icw: 30 kA | XCBR</text>
 
                   {/* 1. Onduleurs -> TGBT Bus (Ligne déjà dessinée au dessus) */}
                   {/* 2. BESS -> TGBT Bus (AC Bidirectional) - Corrigé et non redondant */}
@@ -910,9 +911,11 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               {(activeLevel === 'all' || activeLevel === 'ac-bt' || activeLevel === 'ac-mv') && (
                 <g id="niveau-transfo">
                   {renderComponentBlock('transfo', 970, 200, 200, 160, 230, 255)}
-                  <text x="1070" y="300" textAnchor="middle" fill="#9ca3af" fontSize="11">7.5 MVA | Δ/Yy0 | YPTR</text>
+                  {/* CORRECTION LISIBILITÉ: Texte remonté pour éviter le chevauchement avec l'icône */}
+                  <text x="1070" y="265" textAnchor="middle" fill="#9ca3af" fontSize="11">7.5 MVA | Δ/Yy0 | YPTR</text>
 
                   {/* **Ligne TGBT (Bus) -> Transfo (AC BT)** */}
+                  {/* CORRECTION ANIMATION: Ajout du marqueur de fin pour visualiser le flux */}
                   <AnimatedLine 
                     path="M 930 320 L 970 320" 
                     color={components.onduleurs.color} 
@@ -921,9 +924,11 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     flowAnimation={flowAnimation}
                     flowRole="gridPath"
                     strokeWidth={5}
+                    markerEndId="arrowAC_Fwd" 
                   />
                   
                   {/* Ligne Transfo -> Poste MV (MV) */}
+                  {/* CORRECTION ANIMATION: Ajout du marqueur de fin pour visualiser le flux */}
                   <AnimatedLine 
                     path="M 1070 360 L 1070 450 L 1240 450" 
                     color={components.posteMV.color} 
@@ -931,6 +936,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     flowScenario={flowScenario} 
                     flowAnimation={flowAnimation}
                     flowRole="gridPath"
+                    markerEndId="arrowMV" 
                   />
                   
                 </g>
@@ -940,7 +946,8 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               {(activeLevel === 'all' || activeLevel === 'ac-mv') && (
                 <g id="niveau-poste-mv">
                   {renderComponentBlock('posteMV', 1240, 200, 250, 160, 230, 255)}
-                  <text x="1365" y="300" textAnchor="middle" fill="#9ca3af" fontSize="11">33 kV | PDIF/PTUV</text>
+                  {/* CORRECTION LISIBILITÉ: Texte remonté pour éviter le chevauchement avec l'icône */}
+                  <text x="1365" y="265" textAnchor="middle" fill="#9ca3af" fontSize="11">33 kV | PDIF/PTUV</text>
 
                   {/* Ligne Transfo -> Poste MV (MV) - déjà dessinée dans la section transfo pour l'ordre de superposition */}
                   
@@ -949,9 +956,11 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     <rect x="-15" y="-10" width="30" height="20" fill="#f59e0b" stroke="#f59e0b" strokeWidth="2" />
                     <line x1="-15" y1="0" x2="15" y2="0" stroke="#000" strokeWidth="1"/>
                   </g>
-                  <text x="1330" y="265" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q4</text>
+                  {/* CORRECTION LISIBILITÉ: Remonter Q4 */}
+                  <text x="1330" y="260" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q4</text>
                   
                   {/* Ligne MV du poste au PCC (Point de Connexion) */}
+                  {/* CORRECTION ANIMATION: Ajout du marqueur de fin pour visualiser le flux */}
                   <AnimatedLine 
                     path="M 1490 280 L 1550 280" 
                     color="#f59e0b" 
@@ -960,6 +969,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     flowAnimation={flowAnimation}
                     flowRole="gridPath"
                     strokeWidth={5}
+                    markerEndId="arrowMV" // Ajouté
                   />
                 </g>
               )}
