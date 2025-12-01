@@ -581,16 +581,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
         <text x={x + w / 2} y={detailY} textAnchor="middle" fill="#9ca3af" fontSize="11">{comp.specs[Object.keys(comp.specs)[0]]}</text>
 
         {/* Afficher l'icône du composant pour plus de visibilité */}
-<foreignObject 
-  // Rétablit la ligne de base et applique l'offset X corrigé (-42 au lieu de -30 pour le TGBT)
-  x={x + w / 2 - 12 + (id === 'posteMV' ? 20 : 0) + (id === 'tgbt' ? -42 : 0)} 
-  
-  // Rétablit la ligne de base et applique l'offset Y corrigé (+12 au lieu de +20 pour le TGBT)
-  y={y + h - 65 + (id === 'tgbt' ? 12 : 0)} 
-  
-  width="24" 
-  height="24"
->
+        <foreignObject x={x + w / 2 - 12 + (id === 'posteMV' ? 20 : 0)} y={y + h - 65} width="24" height="24">
             <IconComponent size={24} color={comp.color} />
         </foreignObject>
 
@@ -959,7 +950,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
             {(activeLevel === 'all' || activeLevel === 'ac-bt' || activeLevel === 'ac-mv') && (
               <g id="niveau-transfo">
                 {renderComponentBlock('transfo', 970, 200, 200, 160, 230, 255)}
-                <text x="1070" y="320" textAnchor="middle" fill="#9ca3af" fontSize="11">7.5 MVA | Δ/Yy0 | YPTR</text>
+                <text x="1070" y="275" textAnchor="middle" fill="#9ca3af" fontSize="11">7.5 MVA | Δ/Yy0 | YPTR</text>
 
                 {/* **CORRECTION Q2** Disjoncteur (Breaker/XCBR) : Positionnement ajusté */}
                 <g transform="translate(950, 335)">
