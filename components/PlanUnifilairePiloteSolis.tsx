@@ -998,7 +998,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
             {(activeLevel === 'all' || activeLevel === 'ac-mv') && (
               <g id="niveau-posteMV">
                 {renderComponentBlock('posteMV', 1250, 150, 240, 260, 180, 365)}
-                <text x="1370" y="340" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Protection 50/51, 67/67N</text>
+                <text x="1370" y="330" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Protection 50/51, 67/67N</text>
 
                 {/* **CORRECTION Q3** Sectionneur (Isolator) : Positionnement ajusté */}
                 <g transform="translate(1330, 200)">
