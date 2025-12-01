@@ -901,7 +901,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               <g id="niveau-tgbt">
                 {/* TGBT Block avec Bus Bar */}
                 {renderComponentBlock('tgbt', 750, 180, 180, 280, 210, 235, 320)}
-                <text x="837" y="255" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Icw: 30 kA | XCBR</text>
+                <text x="800" y="420" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Icw: 30 kA | XCBR</text>
 
                 {/* 1. Onduleurs -> TGBT Bus (Ligne déjà dessinée au dessus) */}
 
@@ -942,7 +942,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                   strokeWidth={2} 
                   markerEndId="arrowAC_Fwd"
                 />
-                <text x="834" y="265" textAnchor="middle" fill="#9ca3af" fontSize="10">Charge Auxiliaire</text>
+                <text x="834" y="425" textAnchor="middle" fill="#9ca3af" fontSize="10">Charge Auxiliaire</text>
               </g>
             )}
 
