@@ -1043,7 +1043,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
             {(activeLevel === 'all' || activeLevel === 'ac-mv') && (
               <g id="niveau-pcc">
                 {renderComponentBlock('pcc', 1550, 220, 150, 180, 250, 275)}
-                <text x="1625" y="275" textAnchor="middle" fill="#9ca3af" fontSize="11">6.0 MW P Injectable</text>
+                <text x="1625" y="280" textAnchor="middle" fill="#9ca3af" fontSize="11">6.0 MW P Injectable</text>
                 
                 {/* Représentation du Réseau */}
                 <rect x="1700" y="270" width="10" height="20" fill="#9ca3af" />
