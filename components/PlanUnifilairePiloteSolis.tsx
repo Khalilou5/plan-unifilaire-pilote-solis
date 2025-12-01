@@ -938,7 +938,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                 
                 {/* Q1 Protection (Charge Auxiliaire) */}
                 <g transform="translate(830, 340)">
-                    <rect x="-5" y="0" width="10" height="12" fill="#ef4444" stroke="#ef4444" strokeWidth="1" />
+                    <rect x="-1" y="2" width="10" height="12" fill="#ef4444" stroke="#ef4444" strokeWidth="1" />
                     <path d="M 5 0 L 8 6 L 5 12 Z" fill="#ef4444" />
                 </g>
                 <text x="830" y="365" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Q1</text>
