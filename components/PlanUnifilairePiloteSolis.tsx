@@ -582,8 +582,8 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
 
         {/* Afficher l'icône du composant pour plus de visibilité */}
         <foreignObject 
-  x={x + w / 2 - 12 - 3 + (id === 'posteMV' ? 20 : 0) + (id === 'tgbt' ? -30 : 0)} 
-  y={y + h - 65 - 2 + (id === 'tgbt' ? 20 : 0)} 
+  x={x + w / 2 - 12 - 6 + (id === 'posteMV' ? 20 : 0) + (id === 'tgbt' ? -30 : 0)} 
+  y={y + h - 65 - 4 + (id === 'tgbt' ? 20 : 0)} 
   width="24" 
   height="24"
 >
