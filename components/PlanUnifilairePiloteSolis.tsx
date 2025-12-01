@@ -585,7 +585,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
   x={
     x + w / 2 - 12 + 
     (id === 'posteMV' ? -10 : 0) + 
-    (id === 'tgbt' ? -15 : 0)
+    (id === 'tgbt' ? -10 : 0)
   } 
   y={
     y + h - 65 + 
