@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { ZoomIn, ZoomOut, Home, Info, Power, Battery, Zap, Settings, Grid3x3, AlertTriangle, FastForward, Repeat2, Activity, TrendingUp } from 'lucide-react';
+import { ZoomIn, ZoomOut, Home, Info, Power, Battery, Zap, Settings, Grid3x3, AlertTriangle, FastForward, Repeat2, Activity, TrendingUp, Menu } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
 
@@ -624,6 +624,14 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
             <p className="text-xs md:text-sm text-gray-400 mt-1">Pilote 6 MWc PV + 10 MWh BESS | Schéma Unifilaire | SEDHIOU, Sénégal</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 md:gap-6 items-start sm:items-center w-full md:w-auto">
+              {/* Bouton Menu Mobile */}
+  <button 
+    onClick={() => setIsSidebarOpen(true)}
+    className="md:hidden bg-cyan-600 hover:bg-cyan-700 p-2 rounded border border-cyan-500 transition-colors"
+    aria-label="Ouvrir le panneau d'information"
+  >
+    <Menu size={20} />
+  </button>
             <div className="text-left sm:text-right">
               <div className="text-xs text-gray-400">Scénario de Flux</div>
               <div className="text-base md:text-lg font-bold text-green-400">
@@ -648,7 +656,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
         )}
 
         {/* Panneau latéral responsive */}
-        <div className={`${isSidebarOpen ? 'flex' : 'hidden'} md:flex w-4/5 md:w-80 bg-gray-800 border-r border-gray-700 flex-col overflow-hidden absolute md:relative z-30 h-full transition-transform`}> 
+        <div className={`${isSidebarOpen ? 'flex' : 'hidden'} md:flex md:w-80 w-full md:relative absolute z-50 bg-gray-800 border-r border-gray-700 overflow-y-auto flex-col h-full`}> 
           {/* Contenu du panneau latéral avec scrollbar - OK: flex-1 et overflow-y-auto */}
           <div className="p-4 flex-1 overflow-y-auto">
 
@@ -656,13 +664,13 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               <Info size={20} className="text-cyan-400" />
               Navigation & Télémétrie
               {/* Bouton de fermeture (visible uniquement sur mobile) */}
-              <button 
-                onClick={() => setIsSidebarOpen(false)}
-                className="md:hidden ml-auto text-gray-400 hover:text-white transition-colors"
-                aria-label="Fermer le panneau"
-              >
-                <ZoomOut size={20} />
-              </button>
+<button 
+  onClick={() => setIsSidebarOpen(false)}
+  className="md:hidden ml-auto text-gray-400 hover:text-white transition-colors text-2xl font-bold leading-none"
+  aria-label="Fermer le panneau"
+>
+  ✕
+</button>
             </h3>
 
             {/* Télémétrie SCADA */}
