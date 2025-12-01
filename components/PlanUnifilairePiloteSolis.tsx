@@ -581,9 +581,13 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
         <text x={x + w / 2} y={detailY} textAnchor="middle" fill="#9ca3af" fontSize="11">{comp.specs[Object.keys(comp.specs)[0]]}</text>
 
         {/* Afficher l'icône du composant pour plus de visibilité */}
-        <foreignObject 
-  x={x + w / 2 - 12 + 12 + (id === 'posteMV' ? 20 : 0) + (id === 'tgbt' ? -30 : 0)} 
-  y={y + h - 65 + 8 + (id === 'tgbt' ? 20 : 0)} 
+<foreignObject 
+  // Rétablit la ligne de base et applique l'offset X corrigé (-42 au lieu de -30 pour le TGBT)
+  x={x + w / 2 - 12 + (id === 'posteMV' ? 20 : 0) + (id === 'tgbt' ? -42 : 0)} 
+  
+  // Rétablit la ligne de base et applique l'offset Y corrigé (+12 au lieu de +20 pour le TGBT)
+  y={y + h - 65 + (id === 'tgbt' ? 12 : 0)} 
+  
   width="24" 
   height="24"
 >
