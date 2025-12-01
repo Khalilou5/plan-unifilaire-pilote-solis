@@ -385,7 +385,6 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
   const [flowAnimation, setFlowAnimation] = useState<boolean>(true);
   const [flowScenario, setFlowScenario] = useState<FlowScenarioType>('PV_INJ');
   const [activeLevel, setActiveLevel] = useState<LevelType>('all');
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
 
@@ -445,29 +444,6 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
   };
 
   const handleMouseUp = (): void => {
-    setIsDragging(false);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>): void => {
-    if (e.touches.length === 1) {
-      setIsDragging(true);
-      setDragStart({ 
-        x: e.touches[0].clientX - pan.x, 
-        y: e.touches[0].clientY - pan.y 
-      });
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>): void => {
-    if (isDragging && e.touches.length === 1) {
-      setPan({
-        x: e.touches[0].clientX - dragStart.x,
-        y: e.touches[0].clientY - dragStart.y
-      });
-    }
-  };
-
-  const handleTouchEnd = (): void => {
     setIsDragging(false);
   };
 
@@ -581,7 +557,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
         <text x={x + w / 2} y={detailY} textAnchor="middle" fill="#9ca3af" fontSize="11">{comp.specs[Object.keys(comp.specs)[0]]}</text>
 
         {/* Afficher l'icône du composant pour plus de visibilité */}
-        <foreignObject x={x + w / 2 - 12 + (id === 'posteMV' ? 20 : 0)} y={y + h - 65} width="24" height="24">
+        <foreignObject x={x + w / 2 - 22} y={y + h - 35} width="24" height="24">
             <IconComponent size={24} color={comp.color} />
         </foreignObject>
 
@@ -597,52 +573,36 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
       onMouseLeave={handleMouseUp}
     >
       {/* Header */}
-      <div className="bg-gray-800 border-b border-gray-700 px-4 md:px-6 py-3 md:py-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
+      <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-cyan-400">Centrale Agrivoltaïque SOLIS™</h1>
-            <p className="text-xs md:text-sm text-gray-400 mt-1">Pilote 6 MWc PV + 10 MWh BESS | Schéma Unifilaire | SEDHIOU, Sénégal</p>
+            <h1 className="text-2xl font-bold text-cyan-400">Centrale Agrivoltaïque SOLIS™</h1>
+            <p className="text-sm text-gray-400 mt-1">Pilote 6 MWc PV + 10 MWh BESS | Schéma Unifilaire | SEDHIOU, Sénégal</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-6 items-start sm:items-center w-full md:w-auto">
-            <div className="text-left sm:text-right">
+          <div className="flex gap-6 items-center">
+            <div className="text-right">
               <div className="text-xs text-gray-400">Scénario de Flux</div>
-              <div className="text-base md:text-lg font-bold text-green-400">
+              <div className="text-lg font-bold text-green-400">
                 {flowScenario === 'PV_INJ' ? 'PV Injection (Max)' : flowScenario === 'BESS_DIS' ? 'BESS Décharge' : 'BESS Charge (PV)'}
               </div>
             </div>
-            <div className="text-left sm:text-right bg-gray-700 px-3 md:px-4 py-1.5 md:py-2 rounded border border-cyan-500/30">
+            <div className="text-right bg-gray-700 px-4 py-2 rounded border border-cyan-500/30">
               <div className="text-xs text-gray-400">Tension PCC</div>
-              <div className="text-base md:text-lg font-bold text-cyan-400">{telemetry.voltage} kV</div>
+              <div className="text-lg font-bold text-cyan-400">{telemetry.voltage} kV</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative">
-        {/* Overlay pour fermer la sidebar sur mobile */}
-        {isSidebarOpen && (
-          <div 
-            className="md:hidden fixed inset-0 bg-black/50 z-20"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-
-        {/* Panneau latéral responsive */}
-        <div className={`${isSidebarOpen ? 'flex' : 'hidden'} md:flex w-4/5 md:w-80 bg-gray-800 border-r border-gray-700 flex-col overflow-hidden absolute md:relative z-30 h-full transition-transform`}> 
+      <div className="flex-1 flex overflow-hidden">
+        {/* Panneau latéral - OK: flex flex-col et overflow-hidden */}
+        <div className="w-80 bg-gray-800 border-r border-gray-700 flex flex-col overflow-hidden"> 
           {/* Contenu du panneau latéral avec scrollbar - OK: flex-1 et overflow-y-auto */}
           <div className="p-4 flex-1 overflow-y-auto">
 
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Info size={20} className="text-cyan-400" />
               Navigation & Télémétrie
-              {/* Bouton de fermeture (visible uniquement sur mobile) */}
-              <button 
-                onClick={() => setIsSidebarOpen(false)}
-                className="md:hidden ml-auto text-gray-400 hover:text-white transition-colors"
-                aria-label="Fermer le panneau"
-              >
-                <ZoomOut size={20} />
-              </button>
             </h3>
 
             {/* Télémétrie SCADA */}
@@ -660,7 +620,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     🔋 BESS Flux:
                   </span>
                   <span className="text-white font-bold">
-                    {telemetry.bessPower.toFixed(1).replace('-', '— ')} MW{telemetry.bessPower < 0 ? ' (Charge)' : telemetry.bessPower > 0 ? ' (Décharge)' : ''}
+                    {telemetry.bessPower.toFixed(1).replace('-', '– ')} MW{telemetry.bessPower < 0 ? ' (Charge)' : telemetry.bessPower > 0 ? ' (Décharge)' : ''}
                   </span>
                 </div>
                 <div className="flex justify-between items-center bg-gray-900/50 px-2 py-1 rounded">
@@ -768,12 +728,9 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
 
         {/* Espace SVG principal */}
         <div 
-          className="flex-1 relative overflow-hidden touch-none" 
+          className="flex-1 relative overflow-hidden" 
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
           {/* Boutons de zoom et de réinitialisation de la vue */}
           <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
@@ -791,7 +748,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
           <svg 
             ref={svgRef} 
             className="w-full h-full" 
-            viewBox="0 0 1800 1000"
+            viewBox="0 0 1800 1000" // ViewBox ajusté
             style={{ 
               transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, 
               transformOrigin: 'center', 
@@ -901,7 +858,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               <g id="niveau-tgbt">
                 {/* TGBT Block avec Bus Bar */}
                 {renderComponentBlock('tgbt', 750, 180, 180, 280, 210, 235, 320)}
-                <text x="837" y="415" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Icw: 30 kA | XCBR</text>
+                <text x="837" y="405" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Icw: 30 kA | XCBR</text>
 
                 {/* 1. Onduleurs -> TGBT Bus (Ligne déjà dessinée au dessus) */}
 
@@ -942,7 +899,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                   strokeWidth={2} 
                   markerEndId="arrowAC_Fwd"
                 />
-                <text x="834" y="425" textAnchor="middle" fill="#9ca3af" fontSize="10">Charge Auxiliaire</text>
+                <text x="834" y="415" textAnchor="middle" fill="#9ca3af" fontSize="10">Charge Auxiliaire</text>
               </g>
             )}
 
@@ -950,14 +907,14 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
             {(activeLevel === 'all' || activeLevel === 'ac-bt' || activeLevel === 'ac-mv') && (
               <g id="niveau-transfo">
                 {renderComponentBlock('transfo', 970, 200, 200, 160, 230, 255)}
-                <text x="1070" y="320" textAnchor="middle" fill="#9ca3af" fontSize="11">7.5 MVA | Δ/Yy0 | YPTR</text>
+                <text x="1070" y="300" textAnchor="middle" fill="#9ca3af" fontSize="11">7.5 MVA | Δ/Yy0 | YPTR</text>
 
                 {/* **CORRECTION Q2** Disjoncteur (Breaker/XCBR) : Positionnement ajusté */}
                 <g transform="translate(950, 335)">
                     <rect x="-15" y="-10" width="30" height="20" fill="#f59e0b" stroke="#f59e0b" strokeWidth="2" />
                     <line x1="-15" y1="0" x2="15" y2="0" stroke="#000" strokeWidth="1"/>
                 </g>
-                <text x="950" y="318" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q2</text>
+                <text x="950" y="320" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q2</text>
                 
                 {/* Ligne AC BT (TGBT -> Q2) */}
                 <AnimatedLine 
@@ -998,7 +955,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
             {(activeLevel === 'all' || activeLevel === 'ac-mv') && (
               <g id="niveau-posteMV">
                 {renderComponentBlock('posteMV', 1250, 150, 240, 260, 180, 365)}
-                <text x="1370" y="365" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Protection 50/51, 67/67N</text>
+                <text x="1370" y="350" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">Protection 50/51, 67/67N</text>
 
                 {/* **CORRECTION Q3** Sectionneur (Isolator) : Positionnement ajusté */}
                 <g transform="translate(1330, 200)">
@@ -1011,7 +968,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     <rect x="-15" y="-10" width="30" height="20" fill="#f59e0b" stroke="#f59e0b" strokeWidth="2" />
                     <line x1="-15" y1="0" x2="15" y2="0" stroke="#000" strokeWidth="1"/>
                 </g>
-                <text x="1330" y="263" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q4</text>
+                <text x="1330" y="265" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">Q4</text>
 
 
                 {/* Ligne MV du poste au PCC (Point de Connexion) */}
@@ -1045,31 +1002,31 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                 {renderComponentBlock('pcc', 1550, 220, 150, 180, 250, 275)}
                 <text x="1625" y="350" textAnchor="middle" fill="#9ca3af" fontSize="11">6.0 MW P Injectable</text>
                 
-                {/* Représentation du Réseau */}
-                <rect x="1700" y="270" width="10" height="20" fill="#9ca3af" />
-                <rect x="1710" y="275" width="10" height="10" fill="#9ca3af" />
+{/* Représentation du Réseau */}
+            <rect x="1700" y="270" width="10" height="20" fill="#9ca3af" />
+            <rect x="1710" y="275" width="10" height="10" fill="#9ca3af" />
+            
+            {/* Texte sur 4 lignes, aligné et centré verticalement */}
+            <text x="1725" y="260" fill="#9ca3af" fontSize="12" dominantBaseline="middle" textAnchor="start">
+                {/* Ligne 1 */}
+                RÉSEAU SENELEC
                 
-                {/* Texte sur 4 lignes, aligné et centré verticalement */}
-                <text x="1725" y="260" fill="#9ca3af" fontSize="12" dominantBaseline="middle" textAnchor="start">
-                    {/* Ligne 1 */}
-                    RÉSEAU SENELEC
-                    
-                    {/* Ligne 2 : Saut de ligne après Ligne 1 */}
-                    <tspan x="1725" dy="1.2em">
-                        Interconnexion
-                    </tspan>
-                    
-                    {/* Ligne 3 : Saut de ligne après Ligne 2 */}
-                    <tspan x="1725" dy="1.2em">
-                        au Poste Source (PS)
-                    </tspan>
+                {/* Ligne 2 : Saut de ligne après Ligne 1 */}
+                <tspan x="1725" dy="1.2em">
+                    Interconnexion
+                </tspan>
+                
+                {/* Ligne 3 : Saut de ligne après Ligne 2 */}
+                <tspan x="1725" dy="1.2em">
+                    au Poste Source (PS)
+                </tspan>
 
-                    {/* Ligne 4 : Saut de ligne après Ligne 3 */}
-                    <tspan x="1725" dy="1.2em">
-                        le plus proche
-                    </tspan>
-                </text>
-              </g>
+                {/* Ligne 4 : Saut de ligne après Ligne 3 */}
+                <tspan x="1725" dy="1.2em">
+                    le plus proche
+                </tspan>
+            </text>
+        </g>
             )}
 
             {/* Légende et informations de document */}
@@ -1088,8 +1045,8 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
       </div>
       
       {/* Footer avec informations clés */}
-      <div className="bg-gray-800 border-t border-gray-700 px-4 md:px-6 py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-0 text-xs md:text-sm">
-        <div className="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-6 w-full md:w-auto">
+      <div className="bg-gray-800 border-t border-gray-700 px-6 py-3 flex justify-between items-center text-sm">
+        <div className="flex gap-6">
           <div>
             <span className="text-gray-400">Onduleurs:</span>
             <span className="ml-2 text-white font-medium">19 × 330 kW = 6,27 MWac</span>
@@ -1103,7 +1060,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
             <span className="ml-2 text-white font-medium">7,5 MVA (0,4/33 kV)</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-4">
           <TrendingUp size={16} className="text-green-400" />
           <span className="text-gray-400">Statut:</span>
           <span className="text-green-400 font-bold">PRODUCTION STABLE</span>
