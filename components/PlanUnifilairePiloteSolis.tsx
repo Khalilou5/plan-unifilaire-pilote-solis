@@ -589,7 +589,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
   } 
   y={
     y + h - 65 + 
-    (id === 'tgbt' ? 10 : 0)
+    (id === 'tgbt' ? -10 : 0)
   } 
   width="24" 
   height="24"
