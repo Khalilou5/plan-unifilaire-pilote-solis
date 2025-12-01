@@ -581,7 +581,12 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
         <text x={x + w / 2} y={detailY} textAnchor="middle" fill="#9ca3af" fontSize="11">{comp.specs[Object.keys(comp.specs)[0]]}</text>
 
         {/* Afficher l'icône du composant pour plus de visibilité */}
-        <foreignObject x={x + w / 2 - 12 + (id === 'posteMV' ? 20 : 0)} y={y + h - 65} width="24" height="24">
+        <foreignObject 
+  x={x + w / 2 - 12 + (id === 'posteMV' ? 20 : 0) + (id === 'tgbt' ? -30 : 0)} 
+  y={y + h - 65 + (id === 'tgbt' ? 20 : 0)} 
+  width="24" 
+  height="24"
+>
             <IconComponent size={24} color={comp.color} />
         </foreignObject>
 
