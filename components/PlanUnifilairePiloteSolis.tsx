@@ -578,7 +578,15 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
           filter="url(#componentShadow)"
         />
         <text x={x + w / 2} y={titleY} textAnchor="middle" fill={comp.color} fontSize="16" fontWeight="bold">{comp.name}</text>
-        <text x={x + w / 2} y={detailY} textAnchor="middle" fill="#9ca3af" fontSize="11">{comp.specs[Object.keys(comp.specs)[0]]}</text>
+        <text 
+  x={x + w / 2 + (id === 'posteMV' ? -40 : 0)} 
+  y={detailY + (id === 'posteMV' ? -15 : 0)} 
+  textAnchor="middle" 
+  fill="#9ca3af" 
+  fontSize="11"
+>
+  {comp.specs[Object.keys(comp.specs)[0]]}
+</text>
 
         {/* Afficher l'icône du composant pour plus de visibilité */}
 <foreignObject 
