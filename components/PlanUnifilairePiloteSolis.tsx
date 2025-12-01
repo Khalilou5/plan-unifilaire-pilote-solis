@@ -892,7 +892,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
             {(activeLevel === 'all' || activeLevel === 'ac-bt') && (
               <g id="niveau-bess">
                 {renderComponentBlock('bess', 450, 280, 220, 180, 310, 360)}
-                <text x="560" y="385" textAnchor="middle" fill="#9ca3af" fontSize="11">PCS: 6,0 MWac | ZBAT</text>
+                <text x="560" y="382" textAnchor="middle" fill="#9ca3af" fontSize="11">PCS: 6,0 MWac | ZBAT</text>
               </g>
             )}
 
