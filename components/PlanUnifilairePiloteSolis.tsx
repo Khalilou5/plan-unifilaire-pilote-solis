@@ -942,7 +942,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                   strokeWidth={2} 
                   markerEndId="arrowAC_Fwd"
                 />
-                <text x="834" y="425" textAnchor="middle" fill="#9ca3af" fontSize="10">Charge Auxiliaire</text>
+                <text x="834" y="265" textAnchor="middle" fill="#9ca3af" fontSize="10">Charge Auxiliaire</text>
               </g>
             )}
 
