@@ -941,7 +941,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
                     <rect x="-5" y="0" width="10" height="12" fill="#ef4444" stroke="#ef4444" strokeWidth="1" />
                     <path d="M 5 0 L 8 6 L 5 12 Z" fill="#ef4444" />
                 </g>
-                <text x="810" y="360" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Q1</text>
+                <text x="810" y="350" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Q1</text>
                 
                 <AnimatedLine 
                   path="M 830 320 L 830 340" 
