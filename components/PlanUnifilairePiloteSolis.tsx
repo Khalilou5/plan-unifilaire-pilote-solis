@@ -584,12 +584,12 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
 <foreignObject 
   x={
     x + w / 2 - 12 + 
-    (id === 'posteMV' ? -20 : 0) + 
-    (id === 'tgbt' ? -30 : 0)
+    (id === 'posteMV' ? -10 : 0) + 
+    (id === 'tgbt' ? -15 : 0)
   } 
   y={
     y + h - 65 + 
-    (id === 'tgbt' ? 20 : 0)
+    (id === 'tgbt' ? 10 : 0)
   } 
   width="24" 
   height="24"
