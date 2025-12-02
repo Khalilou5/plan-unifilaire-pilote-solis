@@ -1102,7 +1102,7 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
 
             {/* Légende et informations de document */}
             <text x="50" y="970" fill="#6b7280" fontSize="12" fontWeight="bold">
-              Schéma Unifilaire V8 - SOLIS™ Agrivoltaïque
+              Schéma Unifilaire - SOLIS™ Agrivoltaïque
             </text>
             <text x="50" y="988" fill="#6b7280" fontSize="10">
               Pilote 6 MWc PV + 10 MWh BESS | DAC SEFA / Salikégné, SEDHIOU | Document Technique Exécution
