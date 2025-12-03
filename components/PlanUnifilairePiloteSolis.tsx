@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { ZoomIn, ZoomOut, Home, Info, Power, Battery, Zap, Settings, Grid3x3, AlertTriangle, FastForward, Repeat2, Activity, TrendingUp, Menu } from 'lucide-react';
+import { ZoomIn, ZoomOut, Home, Info, Power, Battery, Zap, Settings, Grid3x3, AlertTriangle, FastForward, Repeat2, Activity, TrendingUp, Menu, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
 
@@ -666,10 +666,10 @@ const PlanUnifilairePiloteSolis: React.FC = () => {
               {/* Bouton de fermeture (visible uniquement sur mobile) */}
 <button 
   onClick={() => setIsSidebarOpen(false)}
-  className="md:hidden ml-auto text-gray-400 hover:text-white transition-colors text-2xl font-bold leading-none"
+  className="md:hidden ml-auto text-gray-400 hover:text-white transition-colors"
   aria-label="Fermer le panneau"
 >
-  ✕
+  <X size={24} />
 </button>
             </h3>
 
